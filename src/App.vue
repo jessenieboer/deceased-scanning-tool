@@ -7,7 +7,7 @@
     <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/xlsx@0.17.3/dist/xlsx.full.min.js"></script>
 
     <div v-if="loading">
-      Loading spreadsheet...
+      Loading spreadsheet... Please wait...
     </div>
 
     <div v-else-if="!data" style="border: 1px solid #aaa; border-radius: 5px; padding: 18px 24px;">
@@ -26,6 +26,14 @@
         </select>.
         Found {{ filteredList.length }} of those.
       </p>
+
+      <ul>
+        <li>Clicking the search links will initiate a search for the specific person using the provided name, birthdate and state.</li>
+        <li>In order to search Ancestry.com you MUST be logged in to their site and have a paid subscription.</li>
+        <li>To speed the process up, after running a search, drag the position of all 3 windows so you can see them on the screen together. Then when you click the next search link it will reuse the same window(s) as before.</li>
+        <li>Links will change colour (to purple) after you've run that search, so you can keep track of which ones you've reviewed.</li>
+        <li>You cannot record your findings on this page (as yet). You will need to note them down in the original spreadsheet.</li>
+      </ul>
 
       <table>
         <thead>
@@ -49,7 +57,11 @@
             <td>{{ row['Name_2'] }}</td>
             <td>{{ age(row) }}</td>
             <td>{{ row['Birthday'] }}</td>
-            <td>{{ row['Address'] }}</td>
+            <td>
+              {{ row['Address'] }}
+              {{ row['__EMPTY_1'] }}
+              {{ row['__EMPTY_2'] }}
+            </td>
             <td>{{ row['Precinct'] }}</td>
             <td>
               <a :href="findAGraveUrl(row)" target="fag">FindAGrave</a>&nbsp;
