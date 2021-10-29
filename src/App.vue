@@ -3,7 +3,6 @@
 
     <h2>Deceased Person Search Tool</h2>
 
-    <p><small>Version 1.0. Caution: This is still very rough and there may be bugs.</small></p>
 
     <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/xlsx@0.17.3/dist/xlsx.full.min.js"></script>
 
@@ -11,12 +10,15 @@
       Loading spreadsheet...
     </div>
 
-    <div v-else-if="!data">
-      Drop an XLS file here to start.
+    <div v-else-if="!data" style="border: 1px solid #aaa; border-radius: 5px; padding: 18px 24px;">
+      <p>Drag and drop an XLS or CSV file onto this window to start. </p>
+      
+      <p>It MUST be in the Missouri "dropped voters" format where there are exactly 2 header rows, and the columns are named consistently to the Barry/Boone/Buchanan sheets.</p>
+
     </div>
 
     <div v-else>
-      <p>Found {{ data.length }} records.</p>
+      <p>Found {{ data.length }} records in spreadsheet.</p>
       <p>
         Here are the ones who voted, and are older than 
         <select v-model="ageLimit">
@@ -41,7 +43,7 @@
         </thead>
         <tbody>
           <tr v-for="row in filteredList.slice(0,1000)" :key="row['Unique Voter ID\'s']">
-            <td>{{ row['Unique Voter ID\'s'] }}</td>
+            <td>{{ row['Voter ID'] || row['Unique Voter ID\'s'] }}</td>
             <td>{{ row['Name'] }}</td>
             <td>{{ row['Name_1'] }}</td>
             <td>{{ row['Name_2'] }}</td>
@@ -62,6 +64,8 @@
 
     </div>
 
+    
+    <p><small><em>Version 1.0. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data.</em></small></p>
 
   </div>
 </template>
@@ -213,6 +217,7 @@ html, body {
 }
 table {
   border-collapse: collapse;
+  margin-bottom: 24px;
 }
 tr:hover td {
   background-color: #f2f2f2;
