@@ -112,9 +112,9 @@
           <tbody>
               <tr v-for="row in filteredList.slice(0,1000)" :key="row['Voter ID']">
               <td>{{ row['Voter ID'] }}</td>
-              <td>{{ row['Name'] }}</td>
-              <td>{{ row['Name_1'] }}</td>
-              <td>{{ row['Name_2'] }}</td>
+              <td>{{ row['First Name'] }}</td>
+              <td>{{ row['Middle Name'] }}</td>
+              <td>{{ row['Last Name'] }}</td>
               <td>{{ row.age }}</td>
               <td>{{ row['Birthdate'] }}</td>
               <td>
@@ -148,7 +148,7 @@ export default {
 
   // Vue variables go here
   data: () => ({
-    VERSION: '1.2.0',
+    VERSION: '1.2.1',
     showFormatHelp: false, // whether the help section is shown
     loading: false,
     filename: null,   // filename of the dropped file
@@ -166,27 +166,15 @@ export default {
      */
     data() {
       console.time('Creating votedList');
-      this.votedList = this.data && this.data
+
+      if (!this.data) return;
+
+      this.votedList = this.data
         .filter(item => item['Voted_1'] == 'Yes' || item['Voted?_1'] == 'Yes')
-        .map(item => {
-          // Standardize rows
-          if (!item['Voter ID'])
-            item['Voter ID'] = item['Unique Voter ID\'s'];
+        .map(this.standardizeColumns);
 
-          if (!item.Birthdate)
-            item.Birthdate = item.Birthday;
-
-          // Convert Excel serial dates to mm/dd/yyyy
-          if (typeof item.Birthdate == 'number') {
-            let bd = new Date(Date.UTC(0, 0, item.Birthdate)).toISOString().split('T')[0].split('-');
-            item.Birthdate = bd[1] + '/' + bd[2] + '/' + bd[0];
-          }
-
-          // Calculate age for each person
-          item.age = this.age(item)
-          return item;
-        });
       console.timeEnd('Creating votedList');
+
     },
   },
   computed: {
@@ -214,6 +202,38 @@ export default {
   },
   methods: {
     /**
+     * Standardize/normalize records from known formats
+     */
+    standardizeColumns(record) {
+
+      // Standardize rows
+      if (!record['Voter ID'])
+        record['Voter ID'] = record['Unique Voter ID\'s'];
+
+      if (!record['First Name'])
+        record['First Name'] = record['Name'];
+
+      if (!record['Middle Name'])
+        record['Middle Name'] = record['Name_1'];
+
+      if (!record['Last Name'])
+        record['Last Name'] = record['Name_2'];
+
+      if (!record.Birthdate)
+        record.Birthdate = record.Birthday;
+
+      // Convert Excel serial dates to mm/dd/yyyy
+      if (typeof record.Birthdate == 'number') {
+        let bd = new Date(Date.UTC(0, 0, record.Birthdate)).toISOString().split('T')[0].split('-');
+        record.Birthdate = bd[1] + '/' + bd[2] + '/' + bd[0];
+      }
+
+      // Calculate age for each person
+      record.age = this.age(record)
+      return record;
+
+    },
+    /**
      * Calculate a person's age
      */
     age(record) {
@@ -233,9 +253,9 @@ export default {
     },
     ancestryUrl(item) {
       return 'https://www.ancestry.com/search/categories/bmd_death/?name=' +
-      encodeURI(item.Name + ' ' + item.Name_1) +
+      encodeURI(item['First Name'] + ' ' + item['Middle Name']) +
       '_' +
-      encodeURI(item.Name_2) +
+      encodeURI(item['Last Name']) +
       '&event=_' +
       // 'columbia-boone-'
       'missouri-usa' +
@@ -244,15 +264,15 @@ export default {
       '&birth_x=0-0-0&name_x=1_1';
     },
     findAGraveUrl(item) {
-      item;
+      // item;
       return 'https://www.findagrave.com/memorial/search?firstname=' +
-      encodeURI(item.Name) +
+      encodeURI(item['First Name']) +
       '&middlename=' +
-      encodeURI(item.Name_1 || '') +
+      encodeURI(item['Middle Name'] || '') +
       '&lastname=' +
-      encodeURI(item.Name_2) +
+      encodeURI(item['Last Name']) +
       '&birthyear=' +
-      (item.Birthday || item.Birthdate || '').split('/')[2] +
+      (item.Birthdate || '').split('/')[2] +
       '&birthyearfilter=' +
       // Must have died BEFORE 2021
       '&deathyear=2021' + 
