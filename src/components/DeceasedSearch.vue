@@ -43,12 +43,12 @@
               </tr>
           </thead>
           <tbody>
-              <tr v-for="row in filteredList.slice(0,1000)" :key="row['Unique Voter ID\'s']">
-              <td>{{ row['Voter ID'] || row['Unique Voter ID\'s'] }}</td>
+              <tr v-for="row in filteredList.slice(0,1000)" :key="row['Voter ID']">
+              <td>{{ row['Voter ID'] }}</td>
               <td>{{ row['Name'] }}</td>
               <td>{{ row['Name_1'] }}</td>
               <td>{{ row['Name_2'] }}</td>
-              <td>{{ age(row) }}</td>
+              <td>{{ row.age }}</td>
               <td>{{ row['Birthdate'] }}</td>
               <td>
                   {{ row['Address'] }}
@@ -78,36 +78,52 @@
 export default {
   name: 'App',
   data: () => ({
-    VERSION: '1.1.0',
+    VERSION: '1.1.1',
     loading: false,
-    ssheet: null,
-    data: null,
+    data: null,       // the full list of records
     ageLimit: 80,
-    votedList: null,
+    votedList: null,  // the filtered list of records from 'data' that actually voted
   }),
   components: {
     // HelloWorld
   },
   watch: {
     data() {
+      console.time('Creating votedList');
       this.votedList = this.data && this.data
         .filter(item => item['Voted_1'] == 'Yes' || item['Voted?_1'] == 'Yes')
         .map(item => {
           // Standardize rows
+          if (!item['Voter ID'])
+            item['Voter ID'] = item['Unique Voter ID\'s'];
+
           if (!item.Birthdate)
             item.Birthdate = item.Birthday;
+
+          // Convert Excel serial dates to mm/dd/yyyy
+          if (typeof item.Birthdate == 'number') {
+            let bd = new Date(Date.UTC(0, 0, item.Birthdate)).toISOString().split('T')[0].split('-');
+            item.Birthdate = bd[1] + '/' + bd[2] + '/' + bd[0];
+          }
+
+          // Calculate age for each person
           item.age = this.age(item)
           return item;
         });
+      console.timeEnd('Creating votedList');
     },
   },
   computed: {
     filteredList() {
-      return this.votedList && this.votedList
+      console.time('Creating filteredList');
+      var result = this.votedList && this.votedList
         .filter(item => 
             item.age > this.ageLimit
         )
         .sort((a,b) => b.age - a.age);
+      console.timeEnd('Creating filteredList');
+
+      return result;
     },
     ageRange() {
       return Array.from(Array(120).keys());
@@ -115,8 +131,13 @@ export default {
   },
   methods: {
     age(record) {
-      return 2021 - record['Birthdate'].split('/')[2];
-    },    
+      if (!record['Birthdate'])
+        return;
+      if (typeof record['Birthdate'] == 'string')
+        return 2021 - record['Birthdate'].split('/')[2];
+      else
+        console.log(record['Voter ID'], 'had an unknown birthdate type', typeof record['Birthdate'], record['Birthdate']);
+    },
     openBothWindows(item) {
       window.open(this.ancestryUrl(item), 'ancestry');
       window.open(this.findAGraveUrl(item), 'fag');
@@ -162,7 +183,7 @@ export default {
       this.className = 'hover'; return false; 
     };
     // holder.ondragend = function () { this.className = ''; return false; };
-    holder.addEventListener('drop', async function (e) {
+    holder.ondrop = async function (e) {
       
       // console.log('file dropped');
       // console.log(e);
@@ -171,13 +192,29 @@ export default {
       // $this.data = null;
       $this.loading = true;
 
+      console.time('nextTick triggered');
+
       $this.$nextTick(async function() {
+
+        console.timeEnd('nextTick triggered');
+        console.time('arrayBuffer() complete');
 
         const f = e.dataTransfer.files[0];
         const data = await f.arrayBuffer();
+
+        console.timeEnd('arrayBuffer() complete');
+        console.time('XLSX.read() complete');
+
         const workbook = window.XLSX.read(data);
+
+        console.timeEnd('XLSX.read() complete');
+        console.time('sheet_to_json() complete');
+
         var ssheet = workbook.Sheets[workbook.SheetNames[0]];
         $this.data = window.XLSX.utils.sheet_to_json(ssheet, {range:1});
+
+        console.timeEnd('sheet_to_json() complete');
+
         $this.loading = false;
 
         // delete f;
@@ -203,7 +240,7 @@ export default {
       // reader.readAsDataURL(file);
 
       // return false;
-    });
+    };
   }
 }
 </script>
