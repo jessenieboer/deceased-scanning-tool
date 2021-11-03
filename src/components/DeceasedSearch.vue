@@ -2,17 +2,84 @@
 
     <div>
 
+      <div v-if="data" style="float: right; font-size: 85%"><em>When ready, drag another file here or <a href="" @click.prevent="data=null">reset all data</a></em></div>
+      
       <h2>Deceased Person Search Tool</h2>
+
       <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/xlsx@0.17.3/dist/xlsx.full.min.js"></script>
       <div v-if="loading">
           Loading spreadsheet... Please wait...
       </div>
-      <div v-else-if="!data" style="border: 1px solid #aaa; border-radius: 5px; padding: 18px 24px;">
+      <div v-else-if="!data">
+
+        <div style="border: 1px solid #aaa; border-radius: 5px; padding: 18px 24px; margin-bottom: 16px">
           <p>Drag and drop an XLS or CSV file onto this window to start. </p>
-      
-          <p>It MUST be in the Missouri "dropped voters" format where there are exactly 2 header rows, and the columns are named consistently to the Barry/Boone/Buchanan sheets.</p>
+        </div>
+
+        <p><a @click.prevent="showFormatHelp=!showFormatHelp" href="#">What format should the file be in?</a></p>
+
+        <div v-if="showFormatHelp">
+
+          <p>The current version of the tool requires that the XLS/CSV have the following column headings in ROW 2 of the data (not row 1) to work correctly.</p>
+
+          <p>Since some spreadsheets we've tested have other column headings, there are some alternative labels that can also be used, shown below.</p>
+
+          <p>Columns do NOT have to be in this order, and other columns can also be present - they will be ignored.</p>
+
+          <table>
+            <tbody>
+              <tr>
+                <td>Column heading:</td>
+                <th>Voter ID</th>
+                <th>Voted_1</th>
+                <th>Birthdate</th>
+                <th>First&nbsp;Name</th>
+                <th>Middle&nbsp;Name</th>
+                <th>Last&nbsp;Name</th>
+                <th>Address</th>
+                <th>Precinct</th>
+              </tr>
+              <tr>
+                <td>Alternative heading:</td>
+                <th>Unique Voter ID's</th>
+                <th style="font-weight: normal">Alternatively, if there are multiple "<strong>Voted</strong>" or "<strong>Voted?</strong>" columns, this will take the second one found.</th>
+                <th>Birthday</th>
+                <th>Name</th>
+                <th>Name_1</th>
+                <th>Name_2</th>
+                <th></th>
+                <th></th>
+              </tr>
+              <tr>
+                <td>Format:</td>
+                <td>Anything</td>
+                <td>Yes / No / Blank
+                  <br>The word "Yes" should indicate whether the person voted in the election. The tool only displays those who voted, ignoring those who didn't. </td>
+                <td>mm/dd/yyyy</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Required?</td>
+                <td>Optional, but helpful to identify specific voters</td>
+                <td>Required</td>
+                <td>Required</td>
+                <td>Required</td>
+                <td>Optional</td>
+                <td>Required</td>
+                <td>Optional</td>
+                <td>Optional</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
       <div v-else>
+          <h3>{{ filename }}</h3>
           <p>Found {{ data.length }} records in spreadsheet.</p>
           <p>
           Here are the ones who voted, and are older than
@@ -66,7 +133,8 @@
           </table>
           Max of 1000 records shown here.
       </div>
-      <p><small><em>Version {{ VERSION }}. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data. Send feedback via <a href="https://t.me/SiWiFi">@SiWiFi</a> on Telegram.</em></small></p>
+
+      <p class="muted"><small>Version {{ VERSION }}. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data. <a href="https://github.com/SiResearch/deceased-scanning-tool/" target="_blank">Code available on Github</a>. Send feedback via <a href="https://t.me/SiWiFi" target="_blank">@SiWiFi</a> on Telegram.</small></p>
 
     </div>
 
@@ -77,9 +145,13 @@
 
 export default {
   name: 'App',
+
+  // Vue variables go here
   data: () => ({
-    VERSION: '1.1.1',
+    VERSION: '1.2.0',
+    showFormatHelp: false, // whether the help section is shown
     loading: false,
+    filename: null,   // filename of the dropped file
     data: null,       // the full list of records
     ageLimit: 80,
     votedList: null,  // the filtered list of records from 'data' that actually voted
@@ -88,6 +160,10 @@ export default {
     // HelloWorld
   },
   watch: {
+    /**
+     * This function runs after we've loaded a new spreadsheet into this.data
+     * We use it to filter the list to only rows that we're interested in
+     */
     data() {
       console.time('Creating votedList');
       this.votedList = this.data && this.data
@@ -114,6 +190,10 @@ export default {
     },
   },
   computed: {
+    /**
+     * Filter the list by those over a specific age
+     * and then sort by age (descending order)
+     */
     filteredList() {
       console.time('Creating filteredList');
       var result = this.votedList && this.votedList
@@ -125,11 +205,17 @@ export default {
 
       return result;
     },
+    /**
+     * Generate a list of ages from 0 to 120
+     */
     ageRange() {
       return Array.from(Array(120).keys());
     }
   },
   methods: {
+    /**
+     * Calculate a person's age
+     */
     age(record) {
       if (!record['Birthdate'])
         return;
@@ -138,6 +224,9 @@ export default {
       else
         console.log(record['Voter ID'], 'had an unknown birthdate type', typeof record['Birthdate'], record['Birthdate']);
     },
+    /**
+     * Open 2 windows at a time (some browsers will block this)
+     */
     openBothWindows(item) {
       window.open(this.ancestryUrl(item), 'ancestry');
       window.open(this.findAGraveUrl(item), 'fag');
@@ -171,6 +260,10 @@ export default {
       '&location=&locationId=&memorialid=&mcid=&linkedToName=&datefilter=&orderby=r&plot=';
     },
   },
+  /**
+   * On pageload, setup the drag-and-drop file read handler
+   * and what to do when the file is dropped
+   */
   mounted() {
     console.log('mounted');
     var $this = this;
@@ -191,6 +284,7 @@ export default {
 
       // $this.data = null;
       $this.loading = true;
+      $this.filename = e.dataTransfer.files[0].name;
 
       console.time('nextTick triggered');
 

@@ -55,4 +55,7 @@ th {
   background-color: #eee;
   font-size: 77%;
 }
+.muted {
+  opacity: 0.6;
+}
 </style>
