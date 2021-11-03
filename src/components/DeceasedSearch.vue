@@ -12,7 +12,7 @@
       </div>
       <div v-else-if="!data">
 
-        <div style="border: 1px solid #aaa; border-radius: 5px; padding: 18px 24px; margin-bottom: 16px">
+        <div class="border">
           <p>Drag and drop an XLS or CSV file onto this window to start. </p>
         </div>
 
@@ -79,15 +79,30 @@
 
       </div>
       <div v-else>
+
           <h3>{{ filename }}</h3>
+
           <p>Found {{ data.length }} records in spreadsheet.</p>
+
+          <div class="border flex">
+
+            <div>
+              <label class="checkbox"><input type="checkbox" v-model="filters.showVotersOnly"> Show only people who voted</label>
+            </div>
+
+            <div>
+              Show people older than
+              <select v-model="filters.ageLimit">
+                  <option v-for="age in ageRange" :key="age" :value="age">{{ age }}</option>
+              </select>
+            </div>
+
+          </div>
+
           <p>
-          Here are the ones who voted, and are older than
-          <select v-model="ageLimit">
-              <option v-for="age in ageRange" :key="age" :value="age">{{ age }}</option>
-          </select>.
           Found {{ filteredList.length }} of those.
           </p>
+
           <ul>
           <li>Clicking the search links will initiate a search for the specific person using the provided name, birthdate and state.</li>
           <li>In order to search Ancestry.com you MUST be logged in to their site and have a paid subscription.</li>
@@ -105,12 +120,13 @@
               <th>Age</th>
               <th>Birthdate</th>
               <th>Address</th>
+              <th>Voted</th>
               <th>Precinct</th>
               <th>Search</th>
               </tr>
           </thead>
           <tbody>
-              <tr v-for="row in filteredList.slice(0,1000)" :key="row['Voter ID']">
+              <tr v-for="row in filteredList.slice(0, filters.maximumRecords)" :key="row['Voter ID']">
               <td>{{ row['Voter ID'] }}</td>
               <td>{{ row['First Name'] }}</td>
               <td>{{ row['Middle Name'] }}</td>
@@ -122,6 +138,7 @@
                   {{ row['__EMPTY_1'] }}
                   {{ row['__EMPTY_2'] }}
               </td>
+              <td>{{ didTheyVote(row) ? 'Yes' : '' }}</td>
               <td>{{ row['Precinct'] }}</td>
               <td>
                   <a :href="findAGraveUrl(row)" target="fag">FindAGrave</a>&nbsp;
@@ -131,7 +148,8 @@
               </tr>
           </tbody>
           </table>
-          Max of 1000 records shown here.
+
+          Max of {{ filters.maximumRecords }} records shown here. <a href="#" @click.prevent="filters.maximumRecords += 1000">Show more</a>.
       </div>
 
       <p class="muted"><small>Version {{ VERSION }}. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data. <a href="https://github.com/SiResearch/deceased-scanning-tool/" target="_blank">Code available on Github</a>. Send feedback via <a href="https://t.me/SiWiFi" target="_blank">@SiWiFi</a> on Telegram.</small></p>
@@ -148,12 +166,16 @@ export default {
 
   // Vue variables go here
   data: () => ({
-    VERSION: '1.2.1',
+    VERSION: '1.3.0',
     showFormatHelp: false, // whether the help section is shown
     loading: false,
     filename: null,   // filename of the dropped file
     data: null,       // the full list of records
-    ageLimit: 80,
+    filters: {
+      showVotersOnly: true,
+      ageLimit: 80,
+      maximumRecords: 1000,
+    },
     votedList: null,  // the filtered list of records from 'data' that actually voted
   }),
   components: {
@@ -164,18 +186,17 @@ export default {
      * This function runs after we've loaded a new spreadsheet into this.data
      * We use it to filter the list to only rows that we're interested in
      */
-    data() {
+    /* data() {
       console.time('Creating votedList');
 
       if (!this.data) return;
 
       this.votedList = this.data
-        .filter(item => item['Voted_1'] == 'Yes' || item['Voted?_1'] == 'Yes')
-        .map(this.standardizeColumns);
+        
 
       console.timeEnd('Creating votedList');
 
-    },
+    }, */
   },
   computed: {
     /**
@@ -184,11 +205,20 @@ export default {
      */
     filteredList() {
       console.time('Creating filteredList');
-      var result = this.votedList && this.votedList
+
+      if (!this.data) return;
+
+      var result = this.data;
+
+      if (this.filters.showVotersOnly)
+        result = result.filter(this.didTheyVote)
+
+      result = result
         .filter(item => 
-            item.age > this.ageLimit
+            item.age > this.filters.ageLimit
         )
         .sort((a,b) => b.age - a.age);
+
       console.timeEnd('Creating filteredList');
 
       return result;
@@ -211,13 +241,13 @@ export default {
         record['Voter ID'] = record['Unique Voter ID\'s'];
 
       if (!record['First Name'])
-        record['First Name'] = record['Name'];
+        record['First Name'] = record['Name'] || '';
 
       if (!record['Middle Name'])
-        record['Middle Name'] = record['Name_1'];
+        record['Middle Name'] = record['Name_1'] || '';
 
       if (!record['Last Name'])
-        record['Last Name'] = record['Name_2'];
+        record['Last Name'] = record['Name_2'] || '';
 
       if (!record.Birthdate)
         record.Birthdate = record.Birthday;
@@ -232,6 +262,15 @@ export default {
       record.age = this.age(record)
       return record;
 
+    },
+    didTheyVote(record) {
+      return record['Voted'] == 'Yes' 
+          || record['Voted_1'] == 'Yes' 
+          || record['Voted?_1'] == 'Yes' 
+          || record['Voted_2'] == 'Yes'
+          || record['Voted?_2'] == 'Yes'
+          || record['Voted_3'] == 'Yes'
+          || record['Voted?_3'] == 'Yes';
     },
     /**
      * Calculate a person's age
@@ -259,8 +298,7 @@ export default {
       '&event=_' +
       // 'columbia-boone-'
       'missouri-usa' +
-      '&birth=' +
-      (item.Birthday || item.Birthdate || '').split('/')[2] +
+      '&birth=' + this.birthYear(item) +
       '&birth_x=0-0-0&name_x=1_1';
     },
     findAGraveUrl(item) {
@@ -271,14 +309,20 @@ export default {
       encodeURI(item['Middle Name'] || '') +
       '&lastname=' +
       encodeURI(item['Last Name']) +
-      '&birthyear=' +
-      (item.Birthdate || '').split('/')[2] +
+      '&birthyear=' + this.birthYear(item) +
       '&birthyearfilter=' +
       // Must have died BEFORE 2021
       '&deathyear=2021' + 
       '&deathyearfilter=before' + 
       '&location=&locationId=&memorialid=&mcid=&linkedToName=&datefilter=&orderby=r&plot=';
     },
+    birthYear(record) {
+      var year = (record.Birthdate || '').split('/')[2];
+      if (year > 1905)
+        return year;
+      else
+        return '';
+    }
   },
   /**
    * On pageload, setup the drag-and-drop file read handler
@@ -326,8 +370,12 @@ export default {
 
         var ssheet = workbook.Sheets[workbook.SheetNames[0]];
         $this.data = window.XLSX.utils.sheet_to_json(ssheet, {range:1});
-
         console.timeEnd('sheet_to_json() complete');
+
+        console.time('standardizeColumns() complete');
+        $this.data = $this.data.map(this.standardizeColumns);
+        console.timeEnd('standardizeColumns() complete');
+
 
         $this.loading = false;
 

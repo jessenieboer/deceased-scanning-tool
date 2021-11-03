@@ -58,4 +58,23 @@ th {
 .muted {
   opacity: 0.6;
 }
+.border {
+  border: 1px solid #aaa; 
+  border-radius: 5px; 
+  padding: 18px 24px; 
+  margin-bottom: 16px;
+}
+label.checkbox {
+  cursor: pointer;
+}
+.flex {
+  display: flex;
+  align-items: baseline;
+}
+.flex > * {
+  margin-right: 24px;
+}
+input, select {
+  /* vertical-align: middle; */
+}
 </style>
