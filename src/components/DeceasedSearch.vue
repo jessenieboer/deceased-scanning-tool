@@ -134,7 +134,7 @@
               <td>{{ row.age }}</td>
               <td>{{ row['Birthdate'] }}</td>
               <td>
-                  {{ row['Address'] }}
+                  {{ row['Address'] || '' }}
                   {{ row['__EMPTY_1'] }}
                   {{ row['__EMPTY_2'] }}
               </td>
@@ -166,7 +166,7 @@ export default {
 
   // Vue variables go here
   data: () => ({
-    VERSION: '1.3.0',
+    VERSION: '1.3.1',
     showFormatHelp: false, // whether the help section is shown
     loading: false,
     filename: null,   // filename of the dropped file
