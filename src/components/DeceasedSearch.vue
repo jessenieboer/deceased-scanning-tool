@@ -7,10 +7,14 @@
       <h2>Deceased Person Search Tool</h2>
 
       <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/xlsx@0.17.3/dist/xlsx.full.min.js"></script>
+
       <div v-if="loading">
           Loading spreadsheet... Please wait...
       </div>
+
       <div v-else-if="!data">
+
+        <p>This tool can speed up the process of searching for people who may have been deceased prior to the Nov 2020 election. By loading in a spreadsheet of registered voters, the tool will generate the appropriate search links for FindAGrave.com and Ancestry.com (which requires a paid account) so that you can search for each person with a single click, saving time and effort.</p>
 
         <div class="border">
           <p>Drag and drop an XLS or CSV file onto this window to start. </p>
@@ -20,64 +24,85 @@
 
         <div v-if="showFormatHelp">
 
-          <p>The current version of the tool requires that the XLS/CSV have the following column headings in ROW 2 of the data (not row 1) to work correctly.</p>
+          <p>The current version of the tool requires that the XLS or CSV file have the following column headings in row 2 of the data (not row 1) to work correctly.</p>
 
-          <p>Since some spreadsheets we've tested have other column headings, there are some alternative labels that can also be used, shown below.</p>
+          <p>Since some spreadsheets we've tested use a different set of column headings, there are some alternative labels that can also be used, shown below.</p>
 
           <p>Columns do NOT have to be in this order, and other columns can also be present - they will be ignored.</p>
 
-          <table>
+          <table class="small">
             <tbody>
               <tr>
-                <td>Column heading:</td>
-                <th>Voter ID</th>
-                <th>Voted_1</th>
-                <th>Birthdate</th>
-                <th>First&nbsp;Name</th>
-                <th>Middle&nbsp;Name</th>
-                <th>Last&nbsp;Name</th>
-                <th>Address</th>
-                <th>Precinct</th>
+                <td width="10%">Column heading:</td>
+                <th width="10%">First&nbsp;Name</th>
+                <th width="10%" class="optional">Middle&nbsp;Name</th>
+                <th width="10%">Last&nbsp;Name</th>
+                <th width="10%">Birthdate</th>
+                <th width="10%" class="optional">Voter ID</th>
+                <th width="15%" class="optional">Voted</th>
+                <th width="10%" class="optional">Address</th>
+                <th width="10%" class="optional">Precinct</th>
               </tr>
               <tr>
                 <td>Alternative heading:</td>
-                <th>Unique Voter ID's</th>
-                <th style="font-weight: normal">Alternatively, if there are multiple "<strong>Voted</strong>" or "<strong>Voted?</strong>" columns, this will take the second one found.</th>
-                <th>Birthday</th>
                 <th>Name</th>
-                <th>Name_1</th>
+                <th class="optional">Name_1</th>
                 <th>Name_2</th>
-                <th></th>
-                <th></th>
-              </tr>
-              <tr>
-                <td>Format:</td>
-                <td>Anything</td>
-                <td>Yes / No / Blank
-                  <br>The word "Yes" should indicate whether the person voted in the election. The tool only displays those who voted, ignoring those who didn't. </td>
-                <td>mm/dd/yyyy</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <th>Birthday</th>
+                <th class="optional">Unique Voter ID's</th>
+                <th class="optional">Voted?</th>
+                <th class="optional"></th>
+                <th class="optional"></th>
               </tr>
               <tr>
                 <td>Required?</td>
-                <td>Optional, but helpful to identify specific voters</td>
+                <td>Required</td>
+                <td class="optional">Optional</td>
                 <td>Required</td>
                 <td>Required</td>
-                <td>Required</td>
-                <td>Optional</td>
-                <td>Required</td>
-                <td>Optional</td>
-                <td>Optional</td>
+                <td class="optional">Optional</td>
+                <td class="optional">Optional</td>
+                <td class="optional">Optional</td>
+                <td class="optional">Optional</td>
+              </tr>
+              <tr>
+                <td>Format:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>mm/dd/yyyy</td>
+                <td class="optional">
+                  Anything
+                </td>
+                <td class="optional">
+                  Yes / No / Blank
+                </td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Notes:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="optional">
+                  Showing this column is helpful in identifying specific voters.
+                </td>
+                <td class="optional">
+                  The word "Yes" should indicate whether the person voted in the election. The tool provides a checkbox to display only those who voted, ignoring those who didn't. 
+                  <br><br>
+                  If there are multiple "<strong>Voted</strong>" or "<strong>Voted?</strong>" columns, a "Yes" in any of the first 4 will constitute a "Yes".
+                </td>
+                <td></td>
+                <td></td>
               </tr>
             </tbody>
           </table>
         </div>
 
       </div>
+
       <div v-else>
 
           <h3>{{ filename }}</h3>
@@ -152,7 +177,7 @@
           Max of {{ filters.maximumRecords }} records shown here. <a href="#" @click.prevent="filters.maximumRecords += 1000">Show more</a>.
       </div>
 
-      <p class="muted"><small>Version {{ VERSION }}. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data. <a href="https://github.com/SiResearch/deceased-scanning-tool/" target="_blank">Code available on Github</a>. Send feedback via <a href="https://t.me/SiWiFi" target="_blank">@SiWiFi</a> on Telegram.</small></p>
+      <p class="muted"><small>Version {{ VERSION }}. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data. <a href="https://github.com/SiResearch/deceased-scanning-tool/" target="_blank">Code available on Github</a>. Send feedback and suggestions via <a href="https://t.me/SiWiFi" target="_blank">@SiWiFi</a> on Telegram.</small></p>
 
     </div>
 
@@ -166,7 +191,7 @@ export default {
 
   // Vue variables go here
   data: () => ({
-    VERSION: '1.3.1',
+    VERSION: '1.3.2',
     showFormatHelp: false, // whether the help section is shown
     loading: false,
     filename: null,   // filename of the dropped file
@@ -265,6 +290,7 @@ export default {
     },
     didTheyVote(record) {
       return record['Voted'] == 'Yes' 
+          || record['Voted?'] == 'Yes' 
           || record['Voted_1'] == 'Yes' 
           || record['Voted?_1'] == 'Yes' 
           || record['Voted_2'] == 'Yes'
@@ -407,6 +433,14 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss">
+  th.optional {
+    background-color: #f6f6f6;
+  }
+  .optional {
+    color: #929292;
+  }
+  td {
+    vertical-align: top;
+  }
 </style>

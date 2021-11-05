@@ -26,7 +26,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 html, body {
 	height: 100%;
 }
@@ -41,19 +41,27 @@ html, body {
 table {
   border-collapse: collapse;
   margin-bottom: 24px;
+  font-size: 0.9rem;
+
+  &.small {
+    font-size: 12px;
+  }
+
+  tr:hover td {
+    background-color: #f2f2f2;
+  }
+  td, th {
+    border: 1px solid #ccc;
+    padding: 2px 4px;
+  }
+  th {
+    font-weight: bold;
+    background-color: #eee;
+    font-size: 12px;
+  }
 }
-tr:hover td {
-  background-color: #f2f2f2;
-}
-td, th {
-  border: 1px solid #ccc;
-  font-size: 90%;
-  padding: 2px 4px;
-}
-th {
-  font-weight: bold;
-  background-color: #eee;
-  font-size: 77%;
+.small {
+  font-size: 85%;
 }
 .muted {
   opacity: 0.6;
