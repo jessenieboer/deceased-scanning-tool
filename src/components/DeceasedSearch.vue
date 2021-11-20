@@ -4,7 +4,7 @@
 
       <div v-if="data" style="float: right; font-size: 85%"><em>When ready, drag another file here or <a href="" @click.prevent="data=null">reset all data</a></em></div>
       
-      <h2>Deceased Person Search Tool</h2>
+      <h2>Deceased Person Search Tool (Iowa Version)</h2>
 
       <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/xlsx@0.17.3/dist/xlsx.full.min.js"></script>
 
@@ -177,7 +177,7 @@
           Max of {{ filters.maximumRecords }} records shown here. <a href="#" @click.prevent="filters.maximumRecords += 1000">Show more</a>.
       </div>
 
-      <p class="muted"><small>Version {{ VERSION }}. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data. <a href="https://github.com/SiResearch/deceased-scanning-tool/" target="_blank">Code available on Github</a>. Send feedback and suggestions via <a href="https://t.me/SiWiFi" target="_blank">@SiWiFi</a> on Telegram.</small></p>
+      <p class="muted"><small>Version {{ VERSION }}. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data. <a href="https://github.com/jessenieboer/deceased-scanning-tool/" target="_blank">Code available on Github</a></small></p>
 
     </div>
 
@@ -323,7 +323,7 @@ export default {
       encodeURI(item['Last Name']) +
       '&event=_' +
       // 'columbia-boone-'
-      'missouri-usa' +
+      'iowa-usa' +
       '&birth=' + this.birthYear(item) +
       '&birth_x=0-0-0&name_x=1_1';
     },
