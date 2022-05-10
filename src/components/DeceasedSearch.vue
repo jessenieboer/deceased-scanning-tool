@@ -122,6 +122,13 @@
               </select>
             </div>
 
+						<div>
+              State
+              <select v-model="filters.state">
+                  <option v-for="state in states" :key="state" :value="state">{{ state }}</option>
+              </select>
+            </div>
+
           </div>
 
           <p>
@@ -253,7 +260,65 @@ export default {
      */
     ageRange() {
       return Array.from(Array(120).keys());
-    }
+    },
+   /**
+     * List of states 
+     */
+    states() {
+return Array(
+"alabama-usa",
+"alaska-usa",
+"arizona-usa",
+"arkansas-usa",
+"california-usa",
+"colorado-usa",
+"connecticuit-usa",
+"delaware-usa",
+"florida-usa",
+"georgia-usa",
+"hawaii-usa",
+"idaho-usa",
+"illinois-usa",
+"indiana-usa",
+"iowa-usa",
+"kansas-usa",
+"kentucky-usa",
+"louisiana-usa",
+"maine-usa",
+"maryland-usa",
+"massachusetts-usa",
+"michigan-usa",
+"minnesota-usa",
+"mississippi-usa",
+"missouri-usa",
+"montana-usa",
+"nebraska-usa",
+"nevada-usa",
+"new+hampshire-usa",
+"new+jersey-usa",
+"new+mexico-usa",
+"new+york-usa",
+"north+carolina-usa",
+"north+dakota-usa",
+"ohio-usa",
+"oklahoma-usa",
+"oregon-usa",
+"pennsylvania-usa",
+"rhode+island-usa",
+"south+carolina-usa",
+"south+dakota-usa",
+"tennesee-usa",
+"texas-usa",
+"utah-usa",
+"vermont-usa",
+"virginia-usa",
+"washington-usa",
+"west+virginia-usa",
+"wisconsin-usa",
+"wyonming-usa"
+);
+    },
+
   },
   methods: {
     /**
@@ -323,9 +388,9 @@ export default {
       encodeURI(item['Last Name']) +
       '&event=_' +
       // 'columbia-boone-'
-      'iowa-usa' +
+      this.filters.state +
       '&birth=' + this.birthYear(item) +
-      '&birth_x=0-0-0&name_x=1_1';
+      '&birth_x=0-0-0&event_x=_1-0&name_x=1_1';
     },
     findAGraveUrl(item) {
       // item;
