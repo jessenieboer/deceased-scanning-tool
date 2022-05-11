@@ -4,7 +4,7 @@
 
       <div v-if="data" style="float: right; font-size: 85%"><em>When ready, drag another file here or <a href="" @click.prevent="data=null">reset all data</a></em></div>
       
-      <h2>Deceased Person Search Tool (Iowa Version)</h2>
+      <h2>Deceased Person Search Tool</h2>
 
       <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/xlsx@0.17.3/dist/xlsx.full.min.js"></script>
 
