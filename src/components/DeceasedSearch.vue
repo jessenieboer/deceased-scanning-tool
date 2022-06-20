@@ -402,9 +402,9 @@ return Array(
       encodeURI(item['Last Name']) +
       '&birthyear=' + this.birthYear(item) +
       '&birthyearfilter=' +
-      // Must have died BEFORE 2021
-      '&deathyear=2021' + 
-      '&deathyearfilter=before' + 
+      // Must have died BEFORE 2021 (removed filter on request)
+      //'&deathyear=2021' + 
+      //'&deathyearfilter=before' + 
       '&location=&locationId=&memorialid=&mcid=&linkedToName=&datefilter=&orderby=r&plot=';
     },
     birthYear(record) {
