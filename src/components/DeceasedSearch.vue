@@ -184,7 +184,7 @@
           Max of {{ filters.maximumRecords }} records shown here. <a href="#" @click.prevent="filters.maximumRecords += 1000">Show more</a>.
       </div>
 
-      <p class="muted"><small>Version {{ VERSION }}. This is still very rough and there may be bugs. If this proves useful, we may expand the features and support for additional data. <a href="https://github.com/jessenieboer/deceased-scanning-tool/" target="_blank">Code available on Github</a></small></p>
+      <p class="muted">Tool created by [@SiWiFi](https://t.me/SiWiFi), adapted by Jesse Nieboer. <a href="https://github.com/jessenieboer/deceased-scanning-tool/" target="_blank">Code available on Github</a></p>
 
     </div>
 
