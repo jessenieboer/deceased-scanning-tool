@@ -383,7 +383,7 @@ return Array(
     },
     ancestryUrl(item) {
       return 'https://www.ancestry.com/search/categories/bmd_death/?name=' +
-      encodeURI(item['First Name'] + ' ' + item['Middle Name']) +
+      encodeURI(item['First Name']) +
       '_' +
       encodeURI(item['Last Name']) +
       '&event=_' +
@@ -396,8 +396,6 @@ return Array(
       // item;
       return 'https://www.findagrave.com/memorial/search?firstname=' +
       encodeURI(item['First Name']) +
-      '&middlename=' +
-      encodeURI(item['Middle Name'] || '') +
       '&lastname=' +
       encodeURI(item['Last Name']) +
       '&birthyear=' + this.birthYear(item) +
