@@ -344,7 +344,7 @@ return Array(
 
       // Convert Excel serial dates to mm/dd/yyyy
       if (typeof record.Birthdate == 'number') {
-        let bd = new Date(Date.UTC(0, 0, record.Birthdate)).toISOString().split('T')[0].split('-');
+        let bd = new Date(Date.UTC(0, 0, record.Birthdate - 1)).toISOString().split('T')[0].split('-');
         record.Birthdate = bd[1] + '/' + bd[2] + '/' + bd[0];
       }
 
