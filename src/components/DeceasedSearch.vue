@@ -122,12 +122,12 @@
               </select>
             </div>
 
-						<div>
-              State
-              <select v-model="filters.state">
-                  <option v-for="state in states" :key="state" :value="state">{{ state }}</option>
-              </select>
-            </div>
+						<!-- <div> -->
+            <!--   State -->
+            <!--   <select v-model="filters.state"> -->
+            <!--       <option v-for="state in states" :key="state" :value="state">{{ state }}</option> -->
+            <!--   </select> -->
+            <!-- </div> -->
 
           </div>
 
@@ -387,9 +387,10 @@ return Array(
       encodeURI(item['First Name']) +
       '_' +
       encodeURI(item['Last Name']) +
-      '&event=_' +
+      '&event=' +
       // 'columbia-boone-'
-      this.filters.state +
+//this.filters.state +
+//
       '&birth=' + this.birthYear(item) +
       '&birth_x=0-0-0&event_x=_1-0&name_x=1_1';
     },
