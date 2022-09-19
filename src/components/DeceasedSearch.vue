@@ -204,8 +204,9 @@ export default {
     filename: null,   // filename of the dropped file
     data: null,       // the full list of records
     filters: {
-      showVotersOnly: true,
-      ageLimit: 80,
+      showVotersOnly: false,
+ageLimit: 65,
+    state: "iowa-usa", 
       maximumRecords: 1000,
     },
     votedList: null,  // the filtered list of records from 'data' that actually voted
